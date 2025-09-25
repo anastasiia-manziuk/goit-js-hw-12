@@ -21,6 +21,10 @@ async function searchImages(event) {
 
 
     if (!query.length) {
+        iziToast.error({
+        position: 'topRight',
+        message: 'Please fill out this field.',
+    });
         return
     };
 
@@ -35,22 +39,33 @@ async function searchImages(event) {
     showLoader();
 
     try {
-        const images = await getImagesByQuery(query, page);
-            if (images.length === 0) {
+        const { hits, totalHits } = await getImagesByQuery(query, page);
+        
+            if (hits.length === 0) {
             iziToast.error({
                 position: 'topRight',
                 message: 'Sorry, there are no images matching your search query. Please try again!',
             });
         } else {
-            createGallery(images);
+                createGallery(hits);
+                const galleryItems = document.querySelectorAll('.gallery .gallery-item');
+                if (page > 1 && galleryItems.length > 0) {
+                const firstNewItem = galleryItems[(page - 1) * perPage]; 
+                firstNewItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
             showLoadMoreButton();
-            if (images.length < perPage) {
-                hideLoadMoreButton();
-                iziToast.info({ message: "No more images to load" });
+            if (hits.length < perPage) {
+            hideLoadMoreButton();
+            iziToast.info({ message: "No more images to load" });
             }
         }
     } catch (err){
-        console.error(err)
+        console.error(err);
+        iziToast.error({
+        position: 'topRight',
+        message: 'Oops! Something went wrong. Please try again.'
+    });
     }
     finally {
         hideLoader();
@@ -60,24 +75,33 @@ async function searchImages(event) {
 };
 
 async function loadMoreImages() {
-    const query = input.value.trim();
     page++;
 
     showLoader();
 
     try {
-        const images = await getImagesByQuery(currentQuery, page);
+        const { hits, totalHits } = await getImagesByQuery(currentQuery, page);
         
-        createGallery(images);
+        
+        createGallery(hits);
+        const galleryItems = document.querySelectorAll('.gallery .gallery-item');
+        if (page > 1 && galleryItems.length > 0) {
+            const firstNewItem = galleryItems[(page - 1) * perPage]; 
+            firstNewItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
 
-        if (images.length < perPage) {
-                hideLoadMoreButton();
-                iziToast.info({ message: "No more images to load" });
+        if (hits.length < perPage) {
+            hideLoadMoreButton();
+            iziToast.info({ message: "No more images to load" });
             }
 
         
     } catch (err) {
         console.error(err)
+        iziToast.error({
+        position: 'topRight',
+        message: 'Oops! Something went wrong. Please try again.'
+    });
     }finally {
         hideLoader();
         

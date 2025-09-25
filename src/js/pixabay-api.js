@@ -14,10 +14,10 @@ export async function getImagesByQuery(query, page) {
                 page: page,
             }
         })
-        return res.data.hits;
+        return res.data;
     }
     catch (err) {
         console.error(err);
-        
+        throw err; 
     }
 }
