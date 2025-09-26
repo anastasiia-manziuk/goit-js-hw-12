@@ -51,14 +51,14 @@ async function searchImages(event) {
         } else {
                 createGallery(hits);
 
-            const { height: cardHeight } = document
-            .querySelector(".gallery")
-            .firstElementChild.getBoundingClientRect();
-
+        const firstCard = document.querySelector(".gallery .gallery-item");
+        if (firstCard) {
+            const cardHeight = firstCard.offsetHeight;
             window.scrollBy({
-            top: cardHeight * 2,
-            behavior: "smooth",
-        });
+                top: cardHeight * 2,
+                behavior: "smooth",
+            });
+        }
 
             if (page * perPage < totalHits) {
                 showLoadMoreButton();
@@ -94,15 +94,15 @@ async function loadMoreImages() {
         
         createGallery(hits);
 
-        const { height: cardHeight } = document
-            .querySelector(".gallery")
-            .firstElementChild.getBoundingClientRect();
-
-        window.scrollBy({
-            top: cardHeight * 2,
-            behavior: "smooth",
-        });
-
+        const firstCard = document.querySelector(".gallery .gallery-item");
+        if (firstCard) {
+            const cardHeight = firstCard.offsetHeight;
+            window.scrollBy({
+                top: cardHeight * 2,
+                behavior: "smooth",
+            });
+        }
+        
         if (page * perPage < totalHits) {
             showLoadMoreButton();
         } else {
