@@ -19,6 +19,8 @@ async function searchImages(event) {
     const query = input.value.trim();
     page = 1;
 
+    hideLoadMoreButton();
+
 
     if (!query.length) {
         iziToast.error({
@@ -31,7 +33,6 @@ async function searchImages(event) {
     if (query !== currentQuery) {
         clearGallery();
         currentQuery = query;
-        form.reset();
     }
     
     
@@ -46,20 +47,26 @@ async function searchImages(event) {
                 position: 'topRight',
                 message: 'Sorry, there are no images matching your search query. Please try again!',
             });
+            hideLoadMoreButton();
         } else {
                 createGallery(hits);
-                const galleryItems = document.querySelectorAll('.gallery .gallery-item');
-                if (page > 1 && galleryItems.length > 0) {
-                const firstNewItem = galleryItems[(page - 1) * perPage]; 
-                firstNewItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
 
-            showLoadMoreButton();
-            if (hits.length < perPage) {
-            hideLoadMoreButton();
-            iziToast.info({ message: "No more images to load" });
-            }
-        }
+            const { height: cardHeight } = document
+            .querySelector(".gallery")
+            .firstElementChild.getBoundingClientRect();
+
+            window.scrollBy({
+            top: cardHeight * 2,
+            behavior: "smooth",
+        });
+
+            if (page * perPage < totalHits) {
+                showLoadMoreButton();
+            } else {
+                hideLoadMoreButton();
+                iziToast.info({ message: "No more images to load" });
+                };
+        };
     } catch (err){
         console.error(err);
         iziToast.error({
@@ -77,6 +84,8 @@ async function searchImages(event) {
 async function loadMoreImages() {
     page++;
 
+    hideLoadMoreButton();
+
     showLoader();
 
     try {
@@ -84,16 +93,22 @@ async function loadMoreImages() {
         
         
         createGallery(hits);
-        const galleryItems = document.querySelectorAll('.gallery .gallery-item');
-        if (page > 1 && galleryItems.length > 0) {
-            const firstNewItem = galleryItems[(page - 1) * perPage]; 
-            firstNewItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
 
-        if (hits.length < perPage) {
+        const { height: cardHeight } = document
+            .querySelector(".gallery")
+            .firstElementChild.getBoundingClientRect();
+
+        window.scrollBy({
+            top: cardHeight * 2,
+            behavior: "smooth",
+        });
+
+        if (page * perPage < totalHits) {
+            showLoadMoreButton();
+        } else {
             hideLoadMoreButton();
             iziToast.info({ message: "No more images to load" });
-            }
+        }
 
         
     } catch (err) {
